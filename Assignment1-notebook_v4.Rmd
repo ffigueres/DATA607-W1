@@ -1,0 +1,57 @@
+---
+title: "Week 1 Assignment"
+subtitle: "DATA-607, Spring 2019"
+author: "Fernando Figueres"
+output: html_notebook
+---
+
+
+#1. Load Libraries
+```{r Load Libraries}
+suppressMessages(library(data.table))
+suppressMessages(library(dplyr))
+suppressMessages(library(tidyr))
+```
+
+#2.Data Import & Column Labeling
+
+##2a. Data imports
+
+```{r Import data and keys}
+mushdata <- fread("mush.data", header = FALSE)
+keydata <- fread("key.csv", header = TRUE)
+mushlabels <- as.character(fread("keycolumns.csv", header = FALSE))
+```
+
+##2b. Add Column Names
+
+```{r Add column labels to data }
+names(mushdata) <- mushlabels
+names(mushdata)
+```
+
+
+#3. Add Data Labels
+
+```{r 5. Update values with labels}
+#warning: Reloading packages may induce an error when running the following code.
+
+#Based on method posted by Jaap Walhout on Stackoverflow (https://stackoverflow.com/questions/49213691/replacing-data-frame-content-with-values-from-another-table-using-matching-colum?rq=1)
+
+mushfinal <- mushdata %>% gather(keycat, letterkey) %>% left_join(., keydata) %>% select(-letterkey) %>% group_by(keycat) %>% mutate(r = row_number()) %>% spread(keycat, keylabel) %>% select(-r)
+
+```
+
+```{r}
+head(mushfinal)
+```
+
+#Create a Subset
+
+```{r 6. Subset, works, keeps labels}
+mushsubset1 <- subset(mushfinal, select=c('edible?','gill-attachment','gill-spacing','gill-size','gill-color'))
+```
+
+```{r}
+head(mushsubset1)
+```
